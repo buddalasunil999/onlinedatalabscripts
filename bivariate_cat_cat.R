@@ -3,7 +3,7 @@
 #function 1: chi square or fisher exact test 
 #function 2: logistic regression 
 
-bi_cat_cat1=function(varname1, varname2, testdata)
+bi_cat_cat1=function(choices, varname1, varname2, testdata)
 {
 	valuesList <- vector("list", length=8)
 	fit=table(varname1,varname2)
@@ -42,7 +42,7 @@ nclass=length(table(varname2))
 fit4=glm(varname1~factor(varname2),family=binomial)		
 labelvar2=names(table(varname2))			
 footnote <- c("Of Note: the presented odds ratios and their confidence intervals are ratios in odds between each category versus. the reference category.", "*Reference category is the lowest level of the independent variable.")
-oddsRatioLabel <- paste("odds ratio of each category vs. the lowest category of independant variable: ",labelvar2[1])
+oddsRatioLabel <- paste("odds ratio of each category vs. the lowest category of ", choices[[2]], ": ",labelvar2[1])
 #print this with lable and the odds ratio number in a cell					
 valuesList[[5]] <- setNames(list(as.list(exp(summary(fit4)$coefficients[2:nclass,1])), footnote),c(oddsRatioLabel,"footnote"))			#odds ratio for every subclass i (i > 1) vs. subclass=1, no intercept
 
@@ -60,7 +60,7 @@ valuesList[[8]] <- replace(fit4val, fit4val=="", "\n")						#print list of summa
 return(toJSON(valuesList))
 }
 
-bi_cat_cat2=function(varname1, varname2, testdata)
+bi_cat_cat2=function(choices, varname1, varname2, testdata)
 {
 	valuesList <- vector("list", length=8)
 	fit=table(varname1,varname2)						#print this with label "Two-way table counts with varname1 with varname2"
@@ -99,7 +99,7 @@ footnote <- c("Of Note: the presented odds ratios and their confidence interval 
 	nclass=length(table(varname2))
 	fit4=multinom(varname1~factor(varname2))		
 	labelvar2=names(table(varname2))			
-	oddsLabel <- paste("odds ratio of each category vs the lowest category of independant variable  ",labelvar2[1])
+	oddsLabel <- paste("odds ratio of each category vs the lowest category of ", choices[[2]], "  ",labelvar2[1])
 	oddsratio=as.list(exp(summary(fit4)$coefficients[,2:nclass]))									#print this with lable "odds ratio" -with the odds ratio numner in a cell					
 	valuesList[[5]] <- setNames(list(oddsratio, footnote),c(oddsLabel,"footnote"))
 
@@ -118,12 +118,12 @@ footnote <- c("Of Note: the presented odds ratios and their confidence interval 
 	return(toJSON(valuesList))
 }
 
-bivariate_cat_cat <- function(dependent, independent, uploaddata){
+bivariate_cat_cat <- function(choices, dependent, independent, uploaddata){
 	noclass<-length(table(dependent))
 	if(noclass == 2){
-		return(bi_cat_cat1(dependent,independent,uploaddata))
+		return(bi_cat_cat1(choices, dependent,independent,uploaddata))
 	}
 	else{
-		return(bi_cat_cat2(dependent,independent,uploaddata))
+		return(bi_cat_cat2(choices, dependent,independent,uploaddata))
 	}
 }

@@ -1,13 +1,13 @@
 #Bivariance analysis categorical ~ continuous		#when cont vs. con, cat has to have only two subclass
 #function 1: logistic regression 
 
-bi_cat_con1=function(varname1, varname2, testdata)
+bi_cat_con1=function(choices, varname1, varname2, testdata)
 {
 valuesList <- vector("list", length=3)
 #logistic regression for dependant variable with 2 subclass
 fit=glm(varname1~varname2,family=binomial)		
 labelvar2=names(table(varname1))			
-oddsRatioLabel <- paste("odds ratio of having the upper level of dependant: ",labelvar2[2])						#print this with lable "odds ratio" -with the odds ratio numner in a cell					
+oddsRatioLabel <- paste("odds ratio of having the upper level of ", choices[[1]], ": ", labelvar2[2])						#print this with lable "odds ratio" -with the odds ratio numner in a cell					
 valuesList[[1]] <- setNames(list(exp(summary(fit)$coefficients[2,1])), oddsRatioLabel)
 
 #print this with label "odds ratio's 95% confidence interval" in a cell
@@ -18,14 +18,14 @@ valuesList[[3]] <- replace(fitSummary, fitSummary=="", "\n")					#print list of 
 return(valuesList)
 }
 
-bi_cat_con2=function(varname1, varname2, testdata)
+bi_cat_con2=function(choices, varname1, varname2, testdata)
 {
 valuesList <- vector("list", length=4)
 fit2=multinom(varname1~varname2)		
 nclass=length(table(varname1))
 
 labelvar2=names(table(varname1))			
-oddsRatioLabel <- paste("odds ratio of having the upper level of dependant: ",labelvar2[2:nclass])
+oddsRatioLabel <- paste("odds ratio of having the upper level of ", choices[[1]], ": ",labelvar2[2:nclass])
 oddsratio=(exp(summary(fit2)$coefficients[,2]))					#print this with lable "odds ratio" -with the odds ratio numner in a cell	
 names(oddsratio) <-oddsRatioLabel
 valuesList[[1]] <- list("odds ratio"=as.list(oddsratio))
@@ -43,12 +43,12 @@ valuesList[[4]] <- replace(fitSummary, fitSummary=="", "\n")
 return(valuesList)
 }
 
-bivariate_cat_cont <- function(dependent, independent, uploaddata){
+bivariate_cat_cont <- function(choices, dependent, independent, uploaddata){
 	noclass<-length(table(dependent))
 	if(noclass == 2){
-		return(toJSON(bi_cat_con1(dependent,independent,uploaddata)))
+		return(toJSON(bi_cat_con1(choices, dependent,independent,uploaddata)))
 	}
 	else{
-		return(toJSON(bi_cat_con2(dependent,independent,uploaddata)))
+		return(toJSON(bi_cat_con2(choices, dependent,independent,uploaddata)))
 	}
 }
